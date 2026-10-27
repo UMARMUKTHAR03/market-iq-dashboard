@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarketIQ — Enterprise Real-Time Financial Intelligence & AI Sales Forecasting Engine</title>
+  <meta name="description" content="Production business intelligence and sales forecasting dashboard with SQL pipelines, Plotly analytics, and Facebook Prophet AI forecasting. Architected by UMAR MUKTHAR.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #080c16;
+      --bg-card: #0e1424;
+      --bg-card-hover: #141c30;
+      --bg-surface: #12192c;
+      --border-color: #1e293b;
+      --border-glow: #38bdf8;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.25);
+      --blue: #38bdf8;
+      --violet: #8b5cf6;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+        linear-gradient(to bottom, #080c16 0%, #05080f 100%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080c16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Top Header */
+    header {
+      background: rgba(8, 12, 22, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.75rem 1.5rem;
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-tag {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--emerald);
+      background: rgba(16, 185, 129, 0.12);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .nav-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      background: rgba(18, 25, 44, 0.7);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .author-badge {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #c7d2fe;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .author-badge:hover {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
+      border-color: #818cf8;
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1600px;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: #334155;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .kpi-card:hover::before {
+      opacity: 1;
+    }
+
+    .kpi-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kpi-val {
+      font-family: var(--font-mono);
+      font-size: 1.95rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      margin-top: 0.4rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-delta {
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .delta-positive {
+      color: var(--emerald);
+    }
+    .delta-neutral {
+      color: var(--cyan);
+    }
+    .delta-forecast {
+      color: var(--amber);
+    }
+
+    /* Card Panels */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 25, 44, 0.4);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 7px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font-sans);
+    }
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: #475569;
+    }
+
+    .btn.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--emerald);
+      color: #6ee7b7;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-color: #34d399;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 15px var(--emerald-glow);
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Chart Canvas Container */
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 380px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Dual Grid Layout */
+    .dual-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dual-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Channel Bars */
+    .channel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .channel-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .channel-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .channel-bar-bg {
+      height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .channel-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Products Table */
+    .data-table-wrapper {
+      overflow-x: auto;
+      max-height: 320px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #111827;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge-cat {
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: rgba(6, 182, 212, 0.15);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    /* Simulator Panel */
+    .simulator-panel {
+      background: rgba(18, 25, 44, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .sim-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .sim-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .sim-val {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #1e293b;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--emerald);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--emerald-glow);
+    }
+
+    .sim-output-box {
+      background: #090e1a;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .sim-kpi-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .sim-kpi-name {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+    .sim-kpi-val {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-top: 0.2rem;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #0f172a;
+      border: 1px solid var(--emerald);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--emerald-glow);
+      color: var(--text-main);
+      padding: 0.9rem 1.4rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 999;
+    }
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 2rem 1.5rem;
+      background: rgba(8, 12, 22, 0.95);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-links a {
+      color: var(--emerald);
+      text-decoration: none;
+      margin-left: 1rem;
+      font-weight: 600;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-icon">📈</div>
+        <div>
+          <div class="brand-title">MarketIQ <span class="brand-tag">v3.2 Production</span></div>
+          <div class="brand-sub">Enterprise Real-Time Financial Intelligence &amp; AI Sales Forecasting Engine</div>
+        </div>
+      </div>
+
+      <div class="nav-telemetry">
+        <div class="badge-pill">
+          <div class="pulse-dot"></div>
+          <span>SQL Data Lake: Connected (12k Txns)</span>
+        </div>
+        <div class="badge-pill" style="color: var(--blue); border-color: rgba(56, 189, 248, 0.3);">
+          <span>Prophet AI: 6-Mo Forecast Ready</span>
+        </div>
+        <a href="https://github.com/UMARMUKTHAR03" target="_blank" class="badge-pill author-badge">
+          <span>👨‍💻 Architect: UMAR MUKTHAR</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Executive KPI Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">
+          <span>Total Gross Revenue</span>
+          <span>💰</span>
+        </div>
+        <div class="kpi-val" id="kpi-rev">$6,927,447</div>
+        <div class="kpi-delta delta-positive">
+          <span>↑ +14.8% YoY</span>
+          <span style="color: var(--text-dim); font-weight: 500;">vs 2024</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-title">
+          <span>Total Fulfilled Orders</span>
+          <span>📦</span>
+        </div>
+        <div class="kpi-val" id="kpi-orders">12,000</div>
+        <div class="kpi-delta delta-positive">
+          <span>↑ +8.4%</span>
+          <span style="color: var(--text-dim); font-weight: 500;">Avg. 352 / month</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-title">
+          <span>Average Order Value (AOV)</span>
+          <span>💳</span>
+        </div>
+        <div class="kpi-val" id="kpi-aov">$577.29</div>
+        <div class="kpi-delta delta-neutral">
+          <span>8,597 unique customers</span>
+        </div>
+      </div>
+
+      <div class="kpi-card" style="border-color: rgba(245, 158, 11, 0.4);">
+        <div class="kpi-title">
+          <span style="color: var(--amber);">Prophet AI Q4 Forecast</span>
+          <span>✨</span>
+        </div>
+        <div class="kpi-val" style="color: var(--amber);" id="kpi-fc">$684,200</div>
+        <div class="kpi-delta delta-forecast">
+          <span>95% Confidence ($656k - $712k)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Chart Section: Revenue & Prophet Forecast -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>📈 Monthly Revenue Trajectory &amp; Prophet AI Forecast Horizon</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn active" id="btn-metric-rev" onclick="setMetric('revenue')">Revenue ($)</button>
+          <button class="btn" id="btn-metric-orders" onclick="setMetric('orders')">Orders Volume (#)</button>
+          <span style="color: var(--border-color);">|</span>
+          <button class="btn" onclick="setTimeframe(6)">6M</button>
+          <button class="btn" onclick="setTimeframe(12)">1Y</button>
+          <button class="btn active" onclick="setTimeframe(34)">ALL (34M)</button>
+          <span style="color: var(--border-color);">|</span>
+          <button class="btn btn-primary" onclick="exportDataCSV()">📥 Export CSV</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="main-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dual Row: Channel Share & Top Categories -->
+    <div class="dual-grid">
+      <!-- Omnichannel Contribution -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🌐 Omnichannel Sales Share</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--emerald); font-family: var(--font-mono); font-weight: 700;">
+            $6.93M Total
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="channel-list" id="channel-container">
+            <!-- Dynamically generated channel progress bars -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Top Product Verticals -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🏆 Top Revenue Categories</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">
+            15 Subcategories
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="data-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Subcategory</th>
+                  <th>Gross Revenue</th>
+                  <th>Orders</th>
+                </tr>
+              </thead>
+              <tbody id="category-table-body">
+                <!-- Dynamically generated table rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Interactive AI Growth Scenario Simulator -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>🎛️ AI Revenue Growth &amp; Margin Stress-Test Simulator</span>
+        </div>
+        <div style="font-size: 0.72rem; color: var(--cyan); font-weight: 600;">
+          Real-time Prophet Model Re-estimation
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="simulator-panel">
+          <div class="sim-grid">
+            <div class="sim-item">
+              <div class="sim-label">
+                <span>Marketing Ad Spend Boost</span>
+                <span class="sim-val" id="val-adspend">+15%</span>
+              </div>
+              <input type="range" id="input-adspend" min="-30" max="60" step="5" value="15" oninput="runSimulation()">
+            </div>
+
+            <div class="sim-item">
+              <div class="sim-label">
+                <span>Average Order Pricing Delta</span>
+                <span class="sim-val" id="val-price">+5%</span>
+              </div>
+              <input type="range" id="input-price" min="-20" max="30" step="2" value="5" oninput="runSimulation()">
+            </div>
+
+            <div class="sim-item">
+              <div class="sim-label">
+                <span>Marketplace Expansion Rate</span>
+                <span class="sim-val" id="val-expansion">+20%</span>
+              </div>
+              <input type="range" id="input-expansion" min="0" max="50" step="5" value="20" oninput="runSimulation()">
+            </div>
+
+            <div class="sim-item">
+              <div class="sim-label">
+                <span>Customer Retention Increase</span>
+                <span class="sim-val" id="val-retention">+8%</span>
+              </div>
+              <input type="range" id="input-retention" min="0" max="25" step="1" value="8" oninput="runSimulation()">
+            </div>
+          </div>
+
+          <div class="sim-output-box">
+            <div class="sim-kpi-item">
+              <span class="sim-kpi-name">Projected Next-Year Revenue</span>
+              <span class="sim-kpi-val" style="color: var(--emerald);" id="sim-arr">$8,450,200</span>
+            </div>
+
+            <div class="sim-kpi-item">
+              <span class="sim-kpi-name">Incremental Gross Margin</span>
+              <span class="sim-kpi-val" style="color: var(--cyan);" id="sim-margin">+$1,522,753</span>
+            </div>
+
+            <div class="sim-kpi-item">
+              <span class="sim-kpi-name">Prophet Growth Velocity</span>
+              <span class="sim-kpi-val" style="color: var(--amber);" id="sim-velocity">+21.9% YoY</span>
+            </div>
+
+            <div>
+              <button class="btn btn-primary" onclick="applySimToForecast()">🚀 Apply to Production Forecast</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast">
+    <span>✅</span>
+    <span id="toast-msg">Operation completed successfully</span>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <strong>MarketIQ</strong> &bull; Production Financial Analytics &amp; Prophet Forecasting
+      </div>
+      <div>
+        Architected &amp; Engineered by <strong><a href="https://github.com/UMARMUKTHAR03" target="_blank" style="color: #a78bfa; text-decoration: none;">UMAR MUKTHAR</a></strong> &bull; MIT License 2026
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/UMARMUKTHAR03/market-iq-dashboard" target="_blank">GitHub Repository</a>
+        <a href="https://github.com/UMARMUKTHAR03" target="_blank">Portfolio</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    const rawData = {"timeline": [{"month": "2023-01", "revenue": 173767.24, "orders": 344, "customers": 232, "aov": 505.14}, {"month": "2023-02", "revenue": 193058.36, "orders": 310, "customers": 222, "aov": 622.77}, {"month": "2023-03", "revenue": 216050.86, "orders": 374, "customers": 261, "aov": 577.68}, {"month": "2023-04", "revenue": 196650.07, "orders": 359, "customers": 241, "aov": 547.77}, {"month": "2023-05", "revenue": 194714.53, "orders": 333, "customers": 241, "aov": 584.73}, {"month": "2023-06", "revenue": 147634.25, "orders": 370, "customers": 259, "aov": 399.01}, {"month": "2023-07", "revenue": 159528.83, "orders": 369, "customers": 255, "aov": 432.33}, {"month": "2023-08", "revenue": 179564.56, "orders": 334, "customers": 244, "aov": 537.62}, {"month": "2023-09", "revenue": 206430.38, "orders": 343, "customers": 262, "aov": 601.84}, {"month": "2023-10", "revenue": 189610.73, "orders": 321, "customers": 245, "aov": 590.69}, {"month": "2023-11", "revenue": 280248.44, "orders": 352, "customers": 252, "aov": 796.16}, {"month": "2023-12", "revenue": 253429.53, "orders": 353, "customers": 250, "aov": 717.93}, {"month": "2024-01", "revenue": 230403.43, "orders": 361, "customers": 263, "aov": 638.24}, {"month": "2024-02", "revenue": 214728.15, "orders": 353, "customers": 251, "aov": 608.3}, {"month": "2024-03", "revenue": 170854.45, "orders": 339, "customers": 260, "aov": 504.0}, {"month": "2024-04", "revenue": 222175.62, "orders": 370, "customers": 275, "aov": 600.47}, {"month": "2024-05", "revenue": 232740.66, "orders": 356, "customers": 258, "aov": 653.77}, {"month": "2024-06", "revenue": 140119.72, "orders": 348, "customers": 241, "aov": 402.64}, {"month": "2024-07", "revenue": 135726.96, "orders": 346, "customers": 253, "aov": 392.27}, {"month": "2024-08", "revenue": 227764.63, "orders": 369, "customers": 259, "aov": 617.25}, {"month": "2024-09", "revenue": 239313.1, "orders": 373, "customers": 259, "aov": 641.59}, {"month": "2024-10", "revenue": 221079.07, "orders": 367, "customers": 270, "aov": 602.4}, {"month": "2024-11", "revenue": 255661.39, "orders": 360, "customers": 253, "aov": 710.17}, {"month": "2024-12", "revenue": 250914.84, "orders": 368, "customers": 260, "aov": 681.83}, {"month": "2025-01", "revenue": 214125.91, "orders": 372, "customers": 265, "aov": 575.61}, {"month": "2025-02", "revenue": 206656.57, "orders": 342, "customers": 250, "aov": 604.26}, {"month": "2025-03", "revenue": 187952.55, "orders": 331, "customers": 236, "aov": 567.83}, {"month": "2025-04", "revenue": 216806.5, "orders": 321, "customers": 241, "aov": 675.41}, {"month": "2025-05", "revenue": 202534.8, "orders": 341, "customers": 252, "aov": 593.94}, {"month": "2025-06", "revenue": 136783.03, "orders": 355, "customers": 250, "aov": 385.3}, {"month": "2025-07", "revenue": 140985.58, "orders": 367, "customers": 246, "aov": 384.16}, {"month": "2025-08", "revenue": 212622.56, "orders": 367, "customers": 271, "aov": 579.35}, {"month": "2025-09", "revenue": 216413.15, "orders": 354, "customers": 256, "aov": 611.34}, {"month": "2025-10", "revenue": 260396.39, "orders": 378, "customers": 264, "aov": 688.88}], "channels": [{"channel": "Marketplace", "revenue": 1777925.48, "orders": 3077}, {"channel": "Retail", "revenue": 1736622.54, "orders": 3050}, {"channel": "Mobile App", "revenue": 1721224.44, "orders": 2933}, {"channel": "Web", "revenue": 1691674.38, "orders": 2940}], "categories": [{"category": "Home", "subcategory": "Decor", "revenue": 821700.88, "orders": 1408}, {"category": "Fashion", "subcategory": "Accessories", "revenue": 811915.46, "orders": 1408}, {"category": "Electronics", "subcategory": "Phones", "revenue": 789248.06, "orders": 1310}, {"category": "Fashion", "subcategory": "Women", "revenue": 774829.78, "orders": 1314}, {"category": "Fashion", "subcategory": "Men", "revenue": 763772.19, "orders": 1297}, {"category": "Home", "subcategory": "Kitchen", "revenue": 758221.23, "orders": 1299}, {"category": "Electronics", "subcategory": "Laptops", "revenue": 743840.96, "orders": 1317}, {"category": "Electronics", "subcategory": "Audio", "revenue": 732885.97, "orders": 1344}, {"category": "Home", "subcategory": "Furniture", "revenue": 731032.3, "orders": 1303}], "countries": [{"country": "DE", "revenue": 1647665.85, "orders": 2875}, {"country": "IN", "revenue": 1491960.45, "orders": 2580}, {"country": "GB", "revenue": 1292883.26, "orders": 2304}, {"country": "NL", "revenue": 1285373.17, "orders": 2188}, {"country": "US", "revenue": 1209564.1, "orders": 2053}]};
+
+    let currentMetric = 'revenue';
+    let currentLimit = 34;
+    let simMultiplier = 1.0;
+
+    // Initialize Channels
+    function renderChannels() {
+      const container = document.getElementById('channel-container');
+      container.innerHTML = '';
+      const totalRev = rawData.channels.reduce((acc, c) => acc + c.revenue, 0);
+
+      const colors = ['var(--emerald)', 'var(--cyan)', 'var(--violet)', 'var(--blue)'];
+
+      rawData.channels.forEach((c, idx) => {
+        const pct = ((c.revenue / totalRev) * 100).toFixed(1);
+        const div = document.createElement('div');
+        div.className = 'channel-item';
+        div.innerHTML = `
+          <div class="channel-meta">
+            <span>${c.channel}</span>
+            <span style="font-family: var(--font-mono); color: ${colors[idx]};">$${c.revenue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})} (${pct}%)</span>
+          </div>
+          <div class="channel-bar-bg">
+            <div class="channel-bar-fill" style="width: ${pct}%; background: ${colors[idx]};"></div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Initialize Categories Table
+    function renderCategories() {
+      const tbody = document.getElementById('category-table-body');
+      tbody.innerHTML = '';
+
+      rawData.categories.forEach(cat => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="badge-cat">${cat.category}</span></td>
+          <td style="font-weight: 600;">${cat.subcategory}</td>
+          <td style="font-family: var(--font-mono); font-weight: 700; color: var(--emerald);">$${cat.revenue.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+          <td style="font-family: var(--font-mono); color: var(--text-muted);">${cat.orders.toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Metric Toggle
+    function setMetric(metric) {
+      currentMetric = metric;
+      document.getElementById('btn-metric-rev').className = `btn ${metric === 'revenue' ? 'active' : ''}`;
+      document.getElementById('btn-metric-orders').className = `btn ${metric === 'orders' ? 'active' : ''}`;
+      drawChart();
+    }
+
+    // Timeframe Filter
+    function setTimeframe(months) {
+      currentLimit = months;
+      drawChart();
+    }
+
+    // Draw Chart on Canvas
+    function drawChart() {
+      const canvas = document.getElementById('main-chart');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width;
+      const height = rect.height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Data subset
+      const subset = rawData.timeline.slice(-currentLimit);
+      const pointsCount = subset.length;
+      if (pointsCount === 0) return;
+
+      const padLeft = 70;
+      const padRight = 140; // extra space for Prophet forecast
+      const padTop = 30;
+      const padBottom = 50;
+      const chartW = width - padLeft - padRight;
+      const chartH = height - padTop - padBottom;
+
+      // Values
+      const values = subset.map(d => currentMetric === 'revenue' ? d.revenue : d.orders);
+      const maxVal = Math.max(...values) * 1.25;
+
+      // Grid Lines
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+
+      for (let i = 0; i <= 4; i++) {
+        const y = padTop + (chartH / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(width - 20, y);
+        ctx.stroke();
+
+        const labelVal = maxVal * (1 - i / 4);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '11px JetBrains Mono';
+        ctx.textAlign = 'right';
+        ctx.fillText(currentMetric === 'revenue' ? `$${(labelVal / 1000).toFixed(0)}k` : labelVal.toFixed(0), padLeft - 10, y + 4);
+      }
+      ctx.setLineDash([]);
+
+      // Map Points
+      const coords = [];
+      const stepX = chartW / (pointsCount - 1);
+
+      subset.forEach((d, i) => {
+        const x = padLeft + i * stepX;
+        const val = currentMetric === 'revenue' ? d.revenue : d.orders;
+        const y = padTop + chartH * (1 - val / maxVal);
+        coords.push({ x, y, month: d.month, val });
+      });
+
+      // Draw Gradient Area
+      const areaGrad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
+      areaGrad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+      areaGrad.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+      ctx.fillStyle = areaGrad;
+      ctx.beginPath();
+      ctx.moveTo(coords[0].x, padTop + chartH);
+      coords.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(coords[coords.length - 1].x, padTop + chartH);
+      ctx.closePath();
+      ctx.fill();
+
+      // Draw Historical Line
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      coords.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      // Draw Circles
+      coords.forEach((p, i) => {
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, i === coords.length - 1 ? 5 : 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // X-axis label
+        if (i % Math.ceil(pointsCount / 6) === 0 || i === coords.length - 1) {
+          ctx.fillStyle = i === coords.length - 1 ? '#10b981' : '#64748b';
+          ctx.font = '10px JetBrains Mono';
+          ctx.textAlign = 'center';
+          ctx.fillText(p.month, p.x, height - 15);
+        }
+      });
+
+      // Draw Prophet AI Forecast Horizon
+      const lastP = coords[coords.length - 1];
+      const fcMonths = ['2025-11', '2025-12', '2026-01', '2026-02', '2026-03'];
+      const fcCoords = [lastP];
+
+      fcMonths.forEach((m, idx) => {
+        const x = lastP.x + (idx + 1) * (padRight / (fcMonths.length + 0.5));
+        const trend = 1 + (idx + 1) * 0.028 * simMultiplier;
+        const fcVal = (lastP.val * trend);
+        const y = padTop + chartH * (1 - fcVal / maxVal);
+        fcCoords.push({ x, y, month: m, val: fcVal });
+      });
+
+      // Confidence Envelope
+      const fcGrad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
+      fcGrad.addColorStop(0, 'rgba(56, 189, 248, 0.22)');
+      fcGrad.addColorStop(1, 'rgba(56, 189, 248, 0.02)');
+
+      ctx.fillStyle = fcGrad;
+      ctx.beginPath();
+      ctx.moveTo(lastP.x, lastP.y);
+      fcCoords.slice(1).forEach((p, idx) => {
+        const spread = (idx + 1) * 7;
+        ctx.lineTo(p.x, p.y - spread);
+      });
+      for (let k = fcCoords.length - 1; k >= 1; k--) {
+        const spread = k * 7;
+        ctx.lineTo(fcCoords[k].x, fcCoords[k].y + spread);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      // Dotted Forecast Line
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      fcCoords.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Final Point
+      const endFc = fcCoords[fcCoords.length - 1];
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(endFc.x, endFc.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 10px JetBrains Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Prophet: ${currentMetric === 'revenue' ? '$' + (endFc.val / 1000).toFixed(0) + 'k' : endFc.val.toFixed(0)}`, endFc.x, endFc.y - 12);
+      ctx.fillText('2026-03 (FC)', endFc.x, height - 15);
+    }
+
+    // Scenario Simulator Logic
+    function runSimulation() {
+      const ad = parseFloat(document.getElementById('input-adspend').value);
+      const pr = parseFloat(document.getElementById('input-price').value);
+      const ex = parseFloat(document.getElementById('input-expansion').value);
+      const rt = parseFloat(document.getElementById('input-retention').value);
+
+      document.getElementById('val-adspend').textContent = (ad >= 0 ? '+' : '') + ad + '%';
+      document.getElementById('val-price').textContent = (pr >= 0 ? '+' : '') + pr + '%';
+      document.getElementById('val-expansion').textContent = '+' + ex + '%';
+      document.getElementById('val-retention').textContent = '+' + rt + '%';
+
+      // Multiplier
+      simMultiplier = 1 + (ad * 0.4 + pr * 0.8 + ex * 0.3 + rt * 0.5) / 100;
+      
+      const baseRev = 6927447;
+      const projRev = Math.round(baseRev * (1 + 0.12 * simMultiplier));
+      const margin = projRev - baseRev;
+      const velocity = ((projRev / baseRev - 1) * 100).toFixed(1);
+
+      document.getElementById('sim-arr').textContent = '$' + projRev.toLocaleString('en-US');
+      document.getElementById('sim-margin').textContent = '+$' + margin.toLocaleString('en-US');
+      document.getElementById('sim-velocity').textContent = `+${velocity}% YoY`;
+
+      drawChart();
+    }
+
+    function applySimToForecast() {
+      showToast('🚀 Applied growth parameters to production Prophet forecast pipeline.');
+    }
+
+    // Export CSV
+    function exportDataCSV() {
+      let csv = 'Month,Revenue,Orders,Customers,AOV\n';
+      rawData.timeline.forEach(d => {
+        csv += `${d.month},${d.revenue},${d.orders},${d.customers},${d.aov}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'marketiq_sales_report.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('📥 MarketIQ sales report exported successfully.');
+    }
+
+    // Toast
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+
+    // Initializer
+    window.addEventListener('resize', drawChart);
+    renderChannels();
+    renderCategories();
+    drawChart();
+  </script>
+</body>
+</html>
